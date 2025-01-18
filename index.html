@@ -32,35 +32,38 @@
     </main>
 
     <script>
-        // Initialize Supabase client
-        const supabase = supabase.createClient(
-            'https://fdphjxbjnononpxljrgb.supabase.co', // Replace with your Supabase project URL
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGhqeGJqbm9ub25weGxqcmdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTM1MzMsImV4cCI6MjA1Mjc2OTUzM30.4OAWrb2IOvq0lOOPplBzG-hGYrK5BfP-y9sCR4ac3Vc' // Replace with your Supabase anon key
-        );
+        // Wait for the DOM to fully load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Supabase client
+            const supabase = supabase.createClient(
+                'https://fdphjxbjnononpxljrgb.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGhqeGJqbm9ub25weGxqcmdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTM1MzMsImV4cCI6MjA1Mjc2OTUzM30.4OAWrb2IOvq0lOOPplBzG-hGYrK5BfP-y9sCR4ac3Vc'
+            );
 
-        // Fetch marker and animation data from Supabase
-        async function loadARContent() {
-            try {
-                const { data, error } = await supabase.from('markers').select('*');
-                if (error) {
-                    console.error('Error fetching data:', error.message);
-                    return;
-                }
+            // Fetch marker and animation data from Supabase
+            async function loadARContent() {
+                try {
+                    const { data, error } = await supabase.from('markers').select('*');
+                    if (error) {
+                        console.error('Error fetching data:', error.message);
+                        return;
+                    }
 
-                if (data.length > 0) {
-                    const markerData = data[0]; // Load the first marker as an example
-                    document.querySelector('a-marker').setAttribute('url', markerData.marker_url);
-                    document.querySelector('a-plane').setAttribute('material', `shader: gif; src: url(${markerData.animation_url});`);
-                } else {
-                    console.warn('No markers found in the database.');
+                    if (data.length > 0) {
+                        const markerData = data[0]; // Load the first marker as an example
+                        document.querySelector('a-marker').setAttribute('url', markerData.marker_url);
+                        document.querySelector('a-plane').setAttribute('material', `shader: gif; src: url(${markerData.animation_url});`);
+                    } else {
+                        console.warn('No markers found in the database.');
+                    }
+                } catch (err) {
+                    console.error('Unexpected error:', err);
                 }
-            } catch (err) {
-                console.error('Unexpected error:', err);
             }
-        }
 
-        // Load AR content when the page loads
-        document.addEventListener('DOMContentLoaded', loadARContent);
+            // Load AR content
+            loadARContent();
+        });
     </script>
 </body>
 </html>
