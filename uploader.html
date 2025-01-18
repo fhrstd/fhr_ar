@@ -17,20 +17,48 @@
     <h1>Upload Marker and Animation</h1>
     <form id="upload-form">
         <label for="marker-link">Google Drive Link (Marker):</label>
-        <input type="url" id="marker-link" required>
+        <input type="url" id="marker-link" placeholder="https://drive.google.com/uc?id=<FILE_ID>" required>
         <label for="animation-link">Google Drive Link (Animation):</label>
-        <input type="url" id="animation-link" required>
+        <input type="url" id="animation-link" placeholder="https://drive.google.com/uc?id=<FILE_ID>" required>
         <button type="submit">Upload</button>
     </form>
     <script>
-        const supabase = supabase.createClient('https://fdphjxbjnononpxljrgb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGhqeGJqbm9ub25weGxqcmdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTM1MzMsImV4cCI6MjA1Mjc2OTUzM30.4OAWrb2IOvq0lOOPplBzG-hGYrK5BfP-y9sCR4ac3Vc');
+        // Initialize Supabase client
+        const supabase = supabase.createClient(
+            'https://fdphjxbjnononpxljrgb.supabase.co', // Replace with your Supabase project URL
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGhqeGJqbm9ub25weGxqcmdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTM1MzMsImV4cCI6MjA1Mjc2OTUzM30.4OAWrb2IOvq0lOOPplBzG-hGYrK5BfP-y9sCR4ac3Vc' // Replace with your Supabase anon key
+        );
+
+        // Form submission handler
         document.getElementById('upload-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const markerLink = document.getElementById('marker-link').value;
-            const animationLink = document.getElementById('animation-link').value;
-            const { data, error } = await supabase.from('markers').insert([{ marker_url: markerLink, animation_url: animationLink }]);
-            if (error) return console.error('Upload error:', error.message);
-            alert('Upload successful!');
+
+            // Get form values
+            const markerLink = document.getElementById('marker-link').value.trim();
+            const animationLink = document.getElementById('animation-link').value.trim();
+
+            if (!markerLink || !animationLink) {
+                alert('Please fill in both fields.');
+                return;
+            }
+
+            try {
+                // Insert data into Supabase
+                const { data, error } = await supabase
+                    .from('markers')
+                    .insert([{ marker_url: markerLink, animation_url: animationLink }]);
+
+                if (error) {
+                    console.error('Insert error:', error);
+                    alert('Error: ' + error.message);
+                } else {
+                    alert('Upload successful!');
+                    document.getElementById('upload-form').reset();
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                alert('Unexpected error occurred.');
+            }
         });
     </script>
 </body>
