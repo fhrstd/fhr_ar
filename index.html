@@ -24,7 +24,7 @@
         <section class="ar-container">
             <a-scene embedded arjs>
                 <a-marker preset="custom" type="pattern" url="marker.patt">
-                    <a-plane position="0 0 0" rotation="-90 0 0" width="1" height="1" material="shader: gif; src: url('animation.gif');"></a-plane>
+                    <a-plane position="0 0 0" rotation="-90 0 0" width="1" height="1" material="src: video.mp4;"></a-plane>
                 </a-marker>
                 <a-entity camera></a-entity>
             </a-scene>
@@ -32,38 +32,35 @@
     </main>
 
     <script>
-        // Wait for the DOM to fully load
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize Supabase client
-            const supabase = supabase.createClient(
-                'https://fdphjxbjnononpxljrgb.supabase.co',
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGhqeGJqbm9ub25weGxqcmdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTM1MzMsImV4cCI6MjA1Mjc2OTUzM30.4OAWrb2IOvq0lOOPplBzG-hGYrK5BfP-y9sCR4ac3Vc'
-            );
+        // Initialize Supabase
+        const supabase = supabase.createClient(
+            'https://fdphjxbjnononpxljrgb.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGhqeGJqbm9ub25weGxqcmdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTM1MzMsImV4cCI6MjA1Mjc2OTUzM30.4OAWrb2IOvq0lOOPplBzG-hGYrK5BfP-y9sCR4ac3Vc'
+        );
 
-            // Fetch marker and animation data from Supabase
-            async function loadARContent() {
-                try {
-                    const { data, error } = await supabase.from('markers').select('*');
-                    if (error) {
-                        console.error('Error fetching data:', error.message);
-                        return;
-                    }
-
-                    if (data.length > 0) {
-                        const markerData = data[0]; // Load the first marker as an example
-                        document.querySelector('a-marker').setAttribute('url', markerData.marker_url);
-                        document.querySelector('a-plane').setAttribute('material', `shader: gif; src: url(${markerData.animation_url});`);
-                    } else {
-                        console.warn('No markers found in the database.');
-                    }
-                } catch (err) {
-                    console.error('Unexpected error:', err);
+        // Fetch marker and animation data from Supabase
+        async function loadARContent() {
+            try {
+                const { data, error } = await supabase.from('markers').select('*');
+                if (error) {
+                    console.error('Error fetching data:', error.message);
+                    return;
                 }
-            }
 
-            // Load AR content
-            loadARContent();
-        });
+                if (data.length > 0) {
+                    const markerData = data[0]; // Load the first marker as an example
+                    document.querySelector('a-marker').setAttribute('url', markerData.marker_url);
+                    document.querySelector('a-plane').setAttribute('material', `src: ${markerData.animation_url}`);
+                } else {
+                    console.warn('No markers found in the database.');
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+            }
+        }
+
+        // Load AR content on page load
+        document.addEventListener('DOMContentLoaded', loadARContent);
     </script>
 </body>
 </html>
