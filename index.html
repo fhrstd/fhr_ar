@@ -9,43 +9,58 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
         body { margin: 0; font-family: Arial, sans-serif; }
-        header { text-align: center; background: #f4f4f4; padding: 1rem; }
-        .ar-container { width: 100%; height: 500px; background: #000; }
+        header { text-align: center; background-color: #f4f4f4; padding: 1rem 0; }
+        main { padding: 1rem; }
+        .ar-container { width: 100%; height: 500px; background-color: #000; overflow: hidden; }
     </style>
 </head>
 <body>
     <header>
         <h1>AR Viewer</h1>
-        <p>Scan markers to display animations in AR.</p>
+        <p>Scan illustrations and view animations in AR</p>
     </header>
-    <section class="ar-container">
-        <a-scene embedded arjs>
-            <!-- Markers will load dynamically -->
-            <a-entity camera></a-entity>
-        </a-scene>
-    </section>
+
+    <main>
+        <section class="ar-container">
+            <a-scene embedded arjs>
+                <a-marker preset="custom" type="pattern" url="marker.patt">
+                    <a-plane position="0 0 0" rotation="-90 0 0" width="1" height="1" material="shader: gif; src: url('animation.gif');"></a-plane>
+                </a-marker>
+                <a-entity camera></a-entity>
+            </a-scene>
+        </section>
+    </main>
+
     <script>
-        const supabase = supabase.createClient('https://fdphjxbjnononpxljrgb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGhqeGJqbm9ub25weGxqcmdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTM1MzMsImV4cCI6MjA1Mjc2OTUzM30.4OAWrb2IOvq0lOOPplBzG-hGYrK5BfP-y9sCR4ac3Vc');
-        async function loadMarkers() {
-            const { data: markers, error } = await supabase.from('markers').select('*');
-            if (error) return console.error('Error fetching markers:', error.message);
-            const scene = document.querySelector('a-scene');
-            markers.forEach(({ marker_url, animation_url }) => {
-                const marker = document.createElement('a-marker');
-                marker.setAttribute('preset', 'custom');
-                marker.setAttribute('type', 'pattern');
-                marker.setAttribute('url', marker_url);
-                const animation = document.createElement('a-plane');
-                animation.setAttribute('position', '0 0 0');
-                animation.setAttribute('rotation', '-90 0 0');
-                animation.setAttribute('width', '1');
-                animation.setAttribute('height', '1');
-                animation.setAttribute('material', `shader: gif; src: url(${animation_url});`);
-                marker.appendChild(animation);
-                scene.appendChild(marker);
-            });
+        // Initialize Supabase client
+        const supabase = supabase.createClient(
+            'https://fdphjxbjnononpxljrgb.supabase.co', // Replace with your Supabase project URL
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGhqeGJqbm9ub25weGxqcmdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTM1MzMsImV4cCI6MjA1Mjc2OTUzM30.4OAWrb2IOvq0lOOPplBzG-hGYrK5BfP-y9sCR4ac3Vc' // Replace with your Supabase anon key
+        );
+
+        // Fetch marker and animation data from Supabase
+        async function loadARContent() {
+            try {
+                const { data, error } = await supabase.from('markers').select('*');
+                if (error) {
+                    console.error('Error fetching data:', error.message);
+                    return;
+                }
+
+                if (data.length > 0) {
+                    const markerData = data[0]; // Load the first marker as an example
+                    document.querySelector('a-marker').setAttribute('url', markerData.marker_url);
+                    document.querySelector('a-plane').setAttribute('material', `shader: gif; src: url(${markerData.animation_url});`);
+                } else {
+                    console.warn('No markers found in the database.');
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+            }
         }
-        document.addEventListener('DOMContentLoaded', loadMarkers);
+
+        // Load AR content when the page loads
+        document.addEventListener('DOMContentLoaded', loadARContent);
     </script>
 </body>
 </html>
